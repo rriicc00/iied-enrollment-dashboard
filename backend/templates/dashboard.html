@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <title>Enrollment Dashboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 15px;
+    }
+    
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    select {
+      padding: 5px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Enrollment Data Viewer</h2>
+
+  <label for="fileSelect">Select a file:</label>
+  <select id="fileSelect">
+    <option value="">-- Choose a file --</option>
+  </select>
+
+  <div id="tableContainer"></div>
+  <canvas id="barChart" width="600" height="400" style="margin-top: 30px;"></canvas>
+
+  <script>
+    async function loadFiles() {
+      const response = await fetch("http://127.0.0.1:5000/api/files");
+      const data = await response.json();
+      const select = document.getElementById("fileSelect");
+
+      data.files.forEach(file => {
+      const option = document.createElement("option");
+      option.value = encodeURIComponent(file);   
+      option.textContent = file;                
+      select.appendChild(option);
+      });
+    }
+
+    async function loadTable(filename) {
+      
+      const response = await fetch(`http://127.0.0.1:5000/api/data/${filename}`);
+      const rows = await response.json();
+
+      const container = document.getElementById("tableContainer");
+      container.innerHTML = "";
+
+      if (rows.length === 0) {
+        container.innerHTML = "<p>No data to display.</p>";
+        return;
+      }
+
+      const columnOrder = Object.keys(rows[0]);
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const tbody = document.createElement("tbody");
+
+      const headerRow = document.createElement("tr");
+      
+      columnOrder.forEach(key => {
+        const th = document.createElement("th");
+        th.textContent = key;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        columnOrder.forEach(key => {
+          const td = document.createElement("td");
+          td.textContent = row[key] ?? "";
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      container.appendChild(table);
+      
+    }
+    let barChart;  
+    function drawBarChart(data, fieldName) {
+    const counts = {};
+
+    // Count occurrences of each value in the given field
+    data.forEach(row => {
+        const value = row[fieldName] ?? "Unknown";
+        counts[value] = (counts[value] || 0) + 1;
+    });
+
+    const labels = Object.keys(counts);
+    const values = Object.values(counts);
+
+    const ctx = document.getElementById("barChart").getContext("2d");
+
+    // Destroy old chart if it exists
+    if (barChart) barChart.destroy();
+
+    barChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+        labels: labels,
+        datasets: [{
+            label: `Count by ${fieldName}`,
+            data: values,
+            backgroundColor: "rgba(54, 162, 235, 0.6)",
+            borderColor: "rgba(54, 162, 235, 1)",
+            borderWidth: 1
+        }]
+        },
+        options: {
+        responsive: true,
+        scales: {
+            y: {
+            beginAtZero: true,
+            ticks: { precision: 0 }
+            }
+        }
+        }
+    });
+    }
+
+
+    // Load file list on page load
+    window.onload = loadFiles;
+
+    // When a file is selected, load its table
+    document.getElementById("fileSelect").addEventListener("change", (e) => {
+      const filename = e.target.value;
+      if (filename) {
+        loadTable(filename);
+      }
+    });
+  </script>
+</body>
+</html>
