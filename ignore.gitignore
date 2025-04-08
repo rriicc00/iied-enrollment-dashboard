@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/macos,windows,vue,python,flask
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows,vue,python,flask
+# Created by https://www.toptal.com/developers/gitignore/api/vue,flask,macos,python,windows,venv
+# Edit at https://www.toptal.com/developers/gitignore?templates=vue,flask,macos,python,windows,venv
 
 ### Flask ###
 instance/*
@@ -292,6 +292,18 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
+### venv ###
+# Virtualenv
+# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
+[Bb]in
+[Ii]nclude
+[Ll]ib
+[Ll]ib64
+[Ll]ocal
+[Ss]cripts
+pyvenv.cfg
+pip-selfcheck.json
+
 ### Vue ###
 # gitignore template for Vue.js projects
 #
@@ -329,4 +341,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/macos,windows,vue,python,flask
+# End of https://www.toptal.com/developers/gitignore/api/vue,flask,macos,python,windows,venv

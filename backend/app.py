@@ -83,7 +83,7 @@ def show_upload_form():
 
 @app.route('/dashboard')
 def show_dashboard():
-    return render_template('dashboard.html')
+    return render_template("dashboard.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
