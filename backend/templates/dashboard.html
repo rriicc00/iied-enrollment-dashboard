@@ -29,62 +29,83 @@
   </style>
 </head>
 <body>
-  <div id="app">
-    <h2>Enrollment Data Viewer</h2>
+  <div id="app" style="display: flex; gap: 30px;">
+    <!-- Sidebar (filters + settings) -->
+    <div style="min-width: 250px;">
+      <h2>Enrollment Data Viewer</h2>
+  
+      <!-- File Selector -->
+      <div style="margin-bottom: 20px;">
+        <label><strong>Select a file:</strong></label><br />
+        <select v-model="selectedFile" @change="loadFile" style="width: 100%;">
+          <option disabled value="">-- Choose a file --</option>
+          <option v-for="file in files" :key="file" :value="file">{{ file }}</option>
+        </select>
+      </div>
 
-    <!-- File selector -->
-    <label for="fileSelect">Select a file:</label>
-    <select v-model="selectedFile" @change="loadFile">
-      <option disabled value="">-- Choose a file --</option>
-      <option v-for="file in files" :key="file" :value="file">{{ file }}</option>
-    </select>
+      
+  
+     
 
-    <!-- Column dropdown -->
-    <div v-if="headers.length > 0" style="margin-top: 15px;">
-      <label for="columnSelect">Chart column:</label>
-      <select v-model="selectedColumn" @change="drawBarChart">
-        <option disabled value="">-- Choose a column --</option>
-        <option v-for="header in headers" :key="header" :value="header">{{ header }}</option>
-      </select>
-    </div>
+      <!-- Chart Type Selector -->
+      <div v-if="headers.length > 0" style="margin-bottom: 20px;">
+        <label><strong>Chart type:</strong></label><br />
+        <select v-model="chartType" style="width: 100%;" @change="drawChart">
+          <option value="bar">Bar</option>
+          <option value="pie">Pie</option>
+          <option value="line">Line</option>
+        </select>
+      </div>
+
+      <!-- Column Selector -->
+      <div v-if="headers.length > 0" style="margin-bottom: 20px;">
+        <label><strong>Chart column:</strong></label><br />
+        <select v-model="selectedColumn" style="width: 100%;" @change="drawChart">
+          <option disabled value="">-- Choose a column --</option>
+          <option v-for="header in headers" :key="header" :value="header">{{ header }}</option>
+        </select>
+      </div>
 
 
-    <!-- Filter Value Checkboxes -->
-    <div v-if="uniqueColumnValues.length > 0" style="margin-top: 10px;">
-      <label>Filter values:</label>
-      <div v-for="val in uniqueColumnValues" :key="val">
-        <label :for="'filter_' + val">
-          <input
-            type="checkbox"
-            :id="'filter_' + val"
-            :value="val"
-            v-model="activeFilters"
-          />
-          {{ val }}
-        </label>
+  
+      <!-- Filter Checkboxes -->
+      <div v-if="uniqueColumnValues.length > 0" style="margin-bottom: 20px;">
+        <label><strong>Filter values:</strong></label><br />
+        <div v-for="val in uniqueColumnValues" :key="val" style="margin-top: 4px;">
+          <label :for="'filter_' + val" style="cursor: pointer;">
+            <input
+              type="checkbox"
+              :id="'filter_' + val"
+              :value="val"
+              v-model="activeFilters"
+            />
+            {{ val }}
+          </label>
+        </div>
       </div>
     </div>
-    
-
-    <!--  {% comment %}  <button @click="clearFilter" style="margin-left: 10px;">Clear Filter</button> {% endcomment %} -->
-
-    <!-- Chart -->
-    <canvas id="barChart" width="600" height="400" style="margin-top: 30px;"></canvas>
-
-    <!-- Table -->
-    <table v-if="data.length > 0">
-      <thead>
-        <tr>
-          <th v-for="header in headers" :key="header">{{ header }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(row, index) in filteredData" :key="index">
-          <td v-for="header in headers" :key="header">{{ row[header] }}</td>
-        </tr>
-      </tbody>
-    </table>
+  
+    <!-- Main Chart + Table Area -->
+    <div style="flex-grow: 1;">
+      <!-- Chart -->
+      <canvas id="barChart" width="600" height="400" style="margin-bottom: 40px;"></canvas>
+  
+      <!-- Table -->
+      <table v-if="filteredData.length > 0">
+        <thead>
+          <tr>
+            <th v-for="header in headers" :key="header">{{ header }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, index) in filteredData" :key="index">
+            <td v-for="header in headers" :key="header">{{ row[header] }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+  
 
   <!-- Vue + Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
@@ -100,7 +121,8 @@
         data: [],
         selectedColumn: "",
         activeFilters: [],
-        chart: null
+        chart: null,
+        chartType: "bar"
       },
       computed: {
         filteredData() {
@@ -112,20 +134,21 @@
         },
         uniqueColumnValues() {
           const col = this.selectedColumn;
-          if (!col || this.filteredData.length === 0) return [];
+          if (!col || this.data.length === 0) return [];
           return [...new Set(this.data.map(row => row[col]))].sort();
         }
       },
       watch: {
         selectedColumn(newVal, oldVal) {
-          this.filterValue = ""; // reset the filter so it doesn't break
-          this.drawBarChart();   // refresh chart to reflect new column
+          this.filterValue = []; // reset the filter so it doesn't break
+          this.activeFilters = [];
+          this.drawChart();   // refresh chart to reflect new column
         },
         activeFilters() {
-          this.drawBarChart();
+          this.drawChart();
         },
         filterText() {
-          this.drawBarChart();
+          this.drawChart();
         }
       },
       methods: {
@@ -146,47 +169,64 @@
 
         clearFilter() {
           this.filterValue = "";
-          this.drawBarChart();
+          this.drawChart();
         },
         
-        drawBarChart() {
-          if (!this.selectedColumn || this.data.length === 0) return;
+        drawChart() {
+          if (!this.selectedColumn) return;
 
+          const dataToCount = this.filteredData.length > 0 ? this.filteredData : this.data;
+
+        
           const counts = {};
-          this.filteredData.forEach(row => {
+          dataToCount.forEach(row => {
             const val = row[this.selectedColumn] ?? "Unknown";
             counts[val] = (counts[val] || 0) + 1;
           });
-
+          
           const labels = Object.keys(counts);
           const values = Object.values(counts);
-
+        
+          // Auto-generate background colors
+          const backgroundColors = labels.map((_, i) => {
+            const hue = (i * 360 / labels.length) % 360;
+            return `hsl(${hue}, 70%, 60%)`;
+          });
+        
           const ctx = document.getElementById("barChart").getContext("2d");
           if (this.chart) this.chart.destroy();
-
+        
           this.chart = new Chart(ctx, {
-            type: "bar",
+            type: this.chartType,
             data: {
               labels: labels,
               datasets: [{
                 label: `Count by ${this.selectedColumn}`,
                 data: values,
-                backgroundColor: "rgba(54, 162, 235, 0.6)",
-                borderColor: "rgba(54, 162, 235, 1)",
-                borderWidth: 1
+                backgroundColor: backgroundColors,
+                borderColor: "rgba(0,0,0,0.1)",
+                borderWidth: 1,
+                fill: this.chartType === "line" ? false : true
               }]
             },
             options: {
               responsive: true,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  ticks: { precision: 0 }
+              plugins: {
+                legend: {
+                  display: this.chartType !== "bar" // show legend for pie, hide for bar
                 }
-              }
+              },
+              scales: this.chartType === "bar" || this.chartType === "line"
+                ? {
+                    y: {
+                      beginAtZero: true,
+                      ticks: { precision: 0 }
+                    }
+                  }
+                : {}
             }
           });
-        }
+        }        
       },
       mounted() {
         this.fetchFiles();
