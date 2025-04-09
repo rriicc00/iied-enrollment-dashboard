@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import pandas as pd
 import os
 from flask_cors import CORS
@@ -16,6 +16,10 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 # In-memory storage of uploaded file data
 uploaded_files = {}
+
+@app.route("/lib/<path:filename>")
+def serve_lib(filename):
+    return send_from_directory("lib", filename)
 
 @app.route('/')
 def home():
