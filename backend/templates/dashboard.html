@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/lib/chart.js/dist/chart.umd.js"></script>
+<script src="/lib/vue.js"></script>
 <head>
   <meta charset="UTF-8" />
   <title>Enrollment Dashboard</title>
@@ -89,6 +90,21 @@
     <div style="flex-grow: 1;">
       <!-- Chart -->
       <canvas id="barChart" width="600" height="400" style="margin-bottom: 40px;"></canvas>
+      <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+        <button @click="downloadChart">Download Chart as PNG</button>
+        <button @click="downloadCSV">Download Table as CSV</button>
+        <button @click="downloadTXT">Download Summary as TXT</button>
+      </div>
+
+      <div v-if="summary && selectedColumn">
+        <h3>Summary</h3>
+        <p>Total Entries: {{ summary.total }}</p>
+        <ul>
+          <li v-for="(count, value) in summary.counts" :key="value">
+            {{ value }} — {{ count }} ({{ ((count / summary.total) * 100).toFixed(1) }}%)
+          </li>
+        </ul>
+      </div>
   
       <!-- Table -->
       <table v-if="filteredData.length > 0">
@@ -105,11 +121,6 @@
       </table>
     </div>
   </div>
-  
-
-  <!-- Vue + Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <script>
     new Vue({
@@ -122,6 +133,7 @@
         selectedColumn: "",
         activeFilters: [],
         chart: null,
+        summary: null,
         chartType: "bar"
       },
       computed: {
@@ -170,6 +182,49 @@
         clearFilter() {
           this.filterValue = "";
           this.drawChart();
+        },
+        
+        downloadChart() {
+          if (!this.chart) return;
+        
+          const link = document.createElement('a');
+          link.href = this.chart.toBase64Image();
+          link.download = `${this.selectedColumn || 'chart'}-${this.chartType}.png`;
+          link.click();
+        },
+
+        downloadCSV() {
+          if (this.filteredData.length === 0) return;
+        
+          const headers = this.headers;
+          const rows = this.filteredData.map(row =>
+            headers.map(h => `"${(row[h] ?? '').toString().replace(/"/g, '""')}"`).join(',')
+          );
+          const csvContent = [headers.join(','), ...rows].join('\n');
+        
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.setAttribute('download', `${this.selectedFile || 'table'}.csv`);
+          link.click();
+        },
+        
+        downloadTXT(){
+          if (!this.summary) return;
+          let text = `Summary for "${this.selectedColumn}"\n`;
+          text += `Total Entries: ${this.summary.total}\n\n`;
+          text += "Breakdown:\n";
+        
+          for (const [value, count] of Object.entries(this.summary.counts)) {
+            const percent = ((count / this.summary.total) * 100).toFixed(1);
+            text += `- ${value}: ${count} (${percent}%)\n`;
+          }
+        
+          const blob = new Blob([text], { type: 'text/plain' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `${this.selectedColumn}-summary.txt`;
+          link.click();
         },
         
         drawChart() {
@@ -226,6 +281,10 @@
                 : {}
             }
           });
+          this.summary = {
+            total: dataToCount.length,
+            counts: counts
+          };
         }        
       },
       mounted() {
