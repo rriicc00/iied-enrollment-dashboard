@@ -89,6 +89,15 @@
     <div style="flex-grow: 1;">
       <!-- Chart -->
       <canvas id="barChart" width="600" height="400" style="margin-bottom: 40px;"></canvas>
+      <div v-if="summary && selectedColumn">
+        <h3>Summary</h3>
+        <p>Total Entries: {{ summary.total }}</p>
+        <ul>
+          <li v-for="(count, value) in summary.counts" :key="value">
+            {{ value }} — {{ count }} ({{ ((count / summary.total) * 100).toFixed(1) }}%)
+          </li>
+        </ul>
+      </div>
   
       <!-- Table -->
       <table v-if="filteredData.length > 0">
@@ -122,6 +131,7 @@
         selectedColumn: "",
         activeFilters: [],
         chart: null,
+        summary: null,
         chartType: "bar"
       },
       computed: {
@@ -226,6 +236,10 @@
                 : {}
             }
           });
+          this.summary = {
+            total: dataToCount.length,
+            counts: counts
+          };
         }        
       },
       mounted() {
