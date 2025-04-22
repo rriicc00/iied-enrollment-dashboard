@@ -4,7 +4,7 @@ import os
 from flask_cors import CORS
 from urllib.parse import unquote
 import numpy as np
-from flask import Flask, render_template
+from flask import Flask, render_template, send_file
 
 app = Flask(__name__)
 CORS(app)
@@ -19,7 +19,7 @@ uploaded_files = {}
 
 @app.route("/lib/<path:filename>")
 def serve_lib(filename):
-    return send_from_directory("lib", filename)
+    return send_from_directory("../lib", filename)
 
 @app.route('/')
 def home():
@@ -87,7 +87,6 @@ def show_upload_form():
 
 @app.route('/dashboard')
 def show_dashboard():
-    return render_template("dashboard.html")
-
+    return send_file("../frontend/dashboard.html")
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='127.0.0.1', port=5423, debug=True)

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Enrollment Dashboard{% endblock %}
+
+{% block content %}
+  <h1>iiED Enrollment Dashboard</h1>
+  <p>Welcome! This internal tool helps visualize enrollment and demographic data.</p>
+
+  <ul>
+    <li>Start by uploading an Excel (.xlsx) file.</li>
+    <li>Then explore the data using filters and charts in the Dashboard.</li>
+  </ul>
+
+  <div style="margin-top: 20px;">
+    <a href="/upload" class="button">Upload a File</a>
+    <a href="/dashboard" class="button">Go to Dashboard</a>
+  </div>
+{% endblock %}
+
