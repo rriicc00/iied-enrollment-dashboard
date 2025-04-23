@@ -170,6 +170,7 @@ cython_debug/
 ### macOS ###
 # General
 .DS_Store
+lib/.DS_Store
 .AppleDouble
 .LSOverride
 
