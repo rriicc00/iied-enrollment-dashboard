@@ -44,17 +44,17 @@ Or launch in terminal:
 start_dashboard.bat
 ```
 
-Then visit the app in your browser:
+### After Setup
+After running either the .sh or .bat file launch the app in your browser:
 
 ```
 http://127.0.0.1:5423/
 ```
-
 > From there, use the navigation bar to go to Upload or Dashboard views.
 
 ---
 
-## Manual Setup (For Devs)
+## Manual Setup
 
 ```bash
 # Clone the repo
@@ -114,7 +114,7 @@ Service Learning Project/
 
 ---
 
-## 🚧 Optional Improvements
+## Optional Improvements
 
 - Add basic authentication (login page or admin access)
 - Multi-sheet Excel upload support
