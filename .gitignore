@@ -342,3 +342,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/vue,flask,macos,python,windows,venv
+
+#Important Project Specific Files
+uploads/*
+!uploads/.gitkeep
