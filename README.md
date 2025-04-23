@@ -58,8 +58,8 @@ http://127.0.0.1:5423/
 
 ```bash
 # Clone the repo
-git clone https://github.com/rriicc00/Service-Learning-Project.git
-cd YOUR_REPO_NAME
+git clone https://github.com/rriicc00/iied-enrollment-dashboard.git
+cd iied-enrollment-dashboard
 
 # Set up virtual environment
 python3 -m venv venv
@@ -82,7 +82,7 @@ python backend/app.py
 ## Project Structure
 
 ```
-Service Learning Project/
+iied-enrollment-dashboard/
 ├── backend/
 │   ├── app.py
 │   ├── templates/
