@@ -4,11 +4,12 @@ This is an internal data dashboard built for the Institute for Innovation & Econ
 
 ## Features
 
-- Upload `.xlsx` files and view data interactively
-- Filter by column values
-- Visualize data with bar, pie, and line charts
-- Download filtered data and summaries
-- Runs entirely offline (no internet needed)
+- Upload `.xlsx` Excel files and view data interactively
+- Filter data by column values
+- Visualize using bar, pie, or line charts
+- Download filtered data as `.csv` or summaries as `.txt`
+- Works completely offline (no internet required)
+- Includes styled navigation and responsive layout
 - Built with Flask (Python) + Vue.js + Chart.js
 
 ---
@@ -17,55 +18,57 @@ This is an internal data dashboard built for the Institute for Innovation & Econ
 
 ### macOS / Linux
 
-Run the startup script from the root of the project:
+Run from the root folder:
 
 ```bash
 bash start_dashboard.sh
 ```
 
-> Or if you've already made it executable:
+Or if already made executable:
+
 ```bash
 ./start_dashboard.sh
 ```
 
 ### Windows
 
-Just double-click `start_dashboard.bat`  
-Or run it from terminal like this:
+Double-click:
 
-```bat
+```
 start_dashboard.bat
 ```
 
-Once the app launches, visit:
+Or launch in terminal:
+
+```cmd
+start_dashboard.bat
+```
+
+Then visit the app in your browser:
 
 ```
-http://127.0.0.1:5423/dashboard
+http://127.0.0.1:5423/
 ```
 
-> The home and upload form are also available at:
-> - `/` for API status
-> - `/upload_form` to upload Excel files
+> From there, use the navigation bar to go to Upload or Dashboard views.
 
 ---
 
-## Manual Setup (Advanced / Devs)
-
-If you prefer to set things up yourself:
+## Manual Setup (For Devs)
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+git clone https://github.com/rriicc00/Service-Learning-Project.git
 cd YOUR_REPO_NAME
 
 # Set up virtual environment
 python3 -m venv venv
 
-# macOS / Linux
-source venv/bin/activate  
+# Activate (macOS/Linux)
+source venv/bin/activate
 
-# Windows
-  venv\Scripts\activate
+# Activate (Windows)
+venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -83,16 +86,19 @@ Service Learning Project/
 ├── backend/
 │   ├── app.py
 │   ├── templates/
-│   └── uploads/
+│   │   ├── base.html
+│   │   ├── home.html
+│   │   └── upload_form.html
+│   └── uploads/           # Excel files saved here
 ├── frontend/
-│   └── dashboard.html
+│   └── dashboard.html     # Vue.js chart dashboard
 ├── lib/
 │   ├── vue.js
 │   └── chart.js
 ├── static/
-│   └── style.css
-├── start_dashboard.sh
-├── start_dashboard.bat
+│   └── style.css          # App-wide styling
+├── start_dashboard.sh     # For Mac/Linux
+├── start_dashboard.bat    # For Windows
 ├── requirements.txt
 └── README.md
 ```
@@ -101,14 +107,18 @@ Service Learning Project/
 
 ## Notes
 
-- Uploaded Excel files are stored in `/uploads` (excluded from Git).
-- The app works offline by locally serving Vue and Chart.js.
-- You can use `CTRL+C` in the terminal to stop the server.
+- Uploaded files persist in `/uploads/` and are excluded from version control.
+- All tools (Vue/Chart.js) are hosted locally — no CDN or internet needed.
+- The dashboard supports filtering and live charting from any uploaded file.
+- To stop the app, press `CTRL+C` in your terminal.
 
 ---
 
-## Optional Improvements
+## 🚧 Optional Improvements
 
-- [ ] Add authentication (basic login or password)
-- [ ] Add multi-sheet Excel support
-- [ ] Automatically summarize top categories on upload
+- Add basic authentication (login page or admin access)
+- Multi-sheet Excel upload support
+- Detect dark mode preference from OS and apply CSS
+- Upload history with metadata (timestamp, size)
+
+---
