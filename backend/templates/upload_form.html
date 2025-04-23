@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Upload Excel File</title>
-</head>
-<body>
-  <h2>Upload Excel File to Enrollment Dashboard</h2>
+{% extends "base.html" %}
 
-  <form id="uploadForm" enctype="multipart/form-data" method="POST" action="http://127.0.0.1:5000/api/upload">
+{% block title %}Upload File - Enrollment Dashboard{% endblock %}
+
+{% block content %}
+  <h2>Upload Excel File</h2>
+
+  <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/api/upload">
     <input type="file" name="file" accept=".xlsx" required />
     <button type="submit">Upload</button>
   </form>
@@ -19,7 +17,7 @@
     const message = document.getElementById("message");
 
     form.addEventListener("submit", async (e) => {
-      e.preventDefault(); // Stop default browser submission
+      e.preventDefault();
 
       const formData = new FormData(form);
 
@@ -36,5 +34,4 @@
       `;
     });
   </script>
-</body>
-</html>
+{% endblock %}

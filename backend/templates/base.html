@@ -6,21 +6,16 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <nav>
-    <ul class="navbar">
-    
-    </ul>
-  </nav>
+    <nav>
+      <ul class="navbar">
+        <li><a href="/">Home</a></li>
+        <li><a href="/upload_form">Upload</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+      </ul>
+    </nav>
 
   <main class="container">
     {% block content %}{% endblock %}
   </main>
 </body>
 </html>
-
-
-
-
-<li><a href="/">Home</a></li>
-<li><a href="/backend/templates/upload_form.html">Upload</a></li>
-<li><a href="/backend/templates/dashboard.html">Dashboard</a></li>

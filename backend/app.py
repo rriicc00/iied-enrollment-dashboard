@@ -6,11 +6,11 @@ from urllib.parse import unquote
 import numpy as np
 from flask import Flask, render_template, send_file
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../static")
 CORS(app)
 
 # Folder for storage of uploaded Excel files
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
@@ -23,7 +23,7 @@ def serve_lib(filename):
 
 @app.route('/')
 def home():
-    return "Enrollment Dashboard API is running!"
+    return render_template('home.html')
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
@@ -41,7 +41,6 @@ def upload_file():
             return jsonify({"error": "No valid sheets found in this file"}), 400
 
         df = pd.read_excel(xls, sheet_name=0)
-        uploaded_files[file.filename] = df
 
         return jsonify({"message": f"{file.filename} uploaded successfully."}), 201
 
@@ -51,16 +50,21 @@ def upload_file():
 
 @app.route('/api/files', methods=['GET'])
 def list_files():
-    return jsonify({"files": list(uploaded_files.keys())})
+    files = [f for f in os.listdir(UPLOAD_FOLDER) if f.endswith('.xlsx')]
+    return jsonify({"files": files})
 
 @app.route('/api/data/<filename>', methods=['GET'])
 def get_file_data(filename):
     filename = unquote(filename)
 
-    if filename not in uploaded_files:
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    if not os.path.exists(filepath):
         return jsonify({"error": "File not found"}), 404
 
-    df = uploaded_files[filename]
+    try:
+        df = pd.read_excel(filepath)
+    except Exception as e:
+        return jsonify({"error": f"Failed to read file: {str(e)}"}), 500
 
     # Clean out problematic values like NaN
     cleaned = df.replace({np.nan: None}) 
